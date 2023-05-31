@@ -7,7 +7,7 @@ for m in $MODS; do
   cp -r "../staging/src/slime.io/slime/modules/$m/charts/" "./helm-charts/slimeboot/templates/modules/$m"
   rm -rf "./helm-charts/slimeboot/templates/modules/$m/crds"
 done
-find ./helm-charts/slimeboot/templates/modules -type f | grep -v ".yaml" | xargs --no-run-if-empty  rm -f 
+find ./helm-charts/slimeboot/templates/modules -type f | grep -v ".yaml" | xargs rm -f 
 for e in Chart.yaml values.yaml; do
   find ./helm-charts/slimeboot/templates/modules -type f -name "$e" -delete
 done
