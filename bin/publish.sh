@@ -5,7 +5,7 @@
 
 source "$(dirname $0)"/*.env.sh 2>/dev/null
 
-HUB=${HUB:-"docker.io/slimeio registry.cn-hangzhou.aliyuncs.com/slimeio"}
+HUB=${HUB:-"docker.longbridge-inc.com/long-bridge-middleware/slime"}
 PUSH_HUBS="$HUB"
 first_hub=$(echo $HUB | awk -F " " '{print $1}')
 TARGET_GOARCH=${TARGET_GOARCH:-${GOARCH:-amd64}}
@@ -83,7 +83,7 @@ else
   TAG_NO_ARCH=$TAG
 fi
 
-image="${first_hub}/$MOD:${TAG}"
+image="${first_hub}/$MOD:hk-${TAG}"
 image_no_arch="${first_hub}/$MOD:${TAG_NO_ARCH}"
 image_url=${image}
 ALL_ACTIONS=${ALL_ACTIONS:-"build image image-push"}

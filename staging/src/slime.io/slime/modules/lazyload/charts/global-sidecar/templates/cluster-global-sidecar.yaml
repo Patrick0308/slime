@@ -357,9 +357,16 @@ spec:
                     prefix: /
                     headers:
                     - name: ':authority'
+                      {{- if eq (default "false" $g.misc.isOldEnvoy) "true" }}
                       safe_regex_match:
                         google_re2: {}
                         regex: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?::([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5][0-5][0-3][0-5]))?$'
+                      {{- else }}
+                      string_match:
+                        safe_regex:
+                          google_re2: {}
+                          regex: '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?::([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5][0-5][0-3][0-5]))?$'
+                      {{- end }}
                   route:
                     cluster: PassthroughCluster
                     timeout: 0s
@@ -374,53 +381,11 @@ spec:
                 key: "Slime-Orig-Dest"
                 value: "%DOWNSTREAM_LOCAL_ADDRESS%"
               append: true
-{{- if eq $addEnvHeaderViaLua "true" }}
-    - applyTo: HTTP_FILTER
-      match:
-        context: SIDECAR_OUTBOUND
-        listener:
-          name: 0.0.0.0_{{ . }}
-          filterChain:
-            filter:
-            {{- if $gs.legacyFilterName }}
-              name: "envoy.http_connection_manager"
-              subFilter:
-                name: "envoy.router"
-            {{- else }}
-              name: "envoy.filters.network.http_connection_manager"
-              subFilter:
-                name: "envoy.filters.http.router"
-            {{- end }}
-      patch:
-        operation: INSERT_BEFORE
-        value:
-          name: envoy.filters.http.lua
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-            inline_code: |
-              -- place holder
-            # compatiable with istio 1.7+
-            source_codes:
-              add.lua:
-                inline_string: |
-                  function envoy_on_request(request_handle)
-                    request_handle:headers():replace("Slime-Source-Ns", os.getenv("POD_NAMESPACE"))
-                  end
-    - applyTo: HTTP_ROUTE
-      match :
-        context: SIDECAR_OUTBOUND
-        routeConfiguration:
-          name: "{{ . }}"
-          vhost:
-            name: to_global_sidecar
-      patch:
-        operation: MERGE
-        value:
-          typed_per_filter_config:
-            envoy.filters.http.lua:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-              name: add.lua
-{{- end }}
+          {{- if ne $addEnvHeaderViaLua "true" }}
+            - header:
+                key: "Slime-Source-Ns"
+                value: "%ENVIRONMENT(POD_NAMESPACE)%"
+          {{- end }}
     - applyTo: VIRTUAL_HOST
       match:
         proxy:
