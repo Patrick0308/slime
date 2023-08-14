@@ -319,6 +319,10 @@ spec:
           name: "{{ . }}"
           vhost:
             name: allow_any
+        {{- if $g.misc.proxyVersion }}
+        proxy:
+          proxyVersion: {{ $g.misc.proxyVersion }}
+        {{- end }}
       patch:
         operation: REMOVE
     - applyTo: ROUTE_CONFIGURATION
@@ -326,6 +330,10 @@ spec:
         context: SIDECAR_OUTBOUND
         routeConfiguration:
           name: "{{ . }}"
+        {{- if $g.misc.proxyVersion }}
+        proxy:
+          proxyVersion: {{ $g.misc.proxyVersion }}
+        {{- end }}
       patch:
         operation: MERGE
         value:
