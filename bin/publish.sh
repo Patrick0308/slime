@@ -83,7 +83,8 @@ else
   TAG_NO_ARCH=$TAG
 fi
 
-image="${first_hub}/$MOD:hk-${TAG}"
+TAG="hk-${TAG}"
+image="${first_hub}/$MOD:${TAG}"
 image_no_arch="${first_hub}/$MOD:${TAG_NO_ARCH}"
 image_url=${image}
 ALL_ACTIONS=${ALL_ACTIONS:-"build image image-push"}
