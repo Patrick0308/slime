@@ -264,6 +264,13 @@ func (r *ServicefenceReconciler) addIpWithEp(ep *corev1.Endpoints) {
 			}
 			ipToSvcCache.Data[address.IP][svc] = struct{}{}
 		}
+		for _, address := range subset.NotReadyAddresses {
+			addresses = append(addresses, address.IP)
+			if _, ok := ipToSvcCache.Data[address.IP]; !ok {
+				ipToSvcCache.Data[address.IP] = make(map[string]struct{})
+			}
+			ipToSvcCache.Data[address.IP][svc] = struct{}{}
+		}
 	}
 	ipToSvcCache.Unlock()
 
