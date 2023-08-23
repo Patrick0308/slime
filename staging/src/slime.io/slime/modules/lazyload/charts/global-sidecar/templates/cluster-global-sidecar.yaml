@@ -164,7 +164,7 @@ spec:
           proxyMetadata:
             ISTIO_META_SLIME_APP:
               LAZYLOAD_GLOBAL_SIDECAR
-        {{- if ne (default "" $.misc.metricSourceType) "accesslog" }}
+        {{- if ne (default "" $g.misc.metricSourceType) "accesslog" }}
             ISTIO_META_ISTIO_VERSION:
               "999.0.0"
         {{- end }}
